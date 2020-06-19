@@ -63,6 +63,7 @@ class Jira:
 		def account_replace(match):
 			string = match.group()
 			accountid = string.split(':')[1][:-1]
+			accountid = string.split('id:')[1][:-1]
 			try:
 				account = self.get('user',{'accountId':accountid})
 				displayName = account.get('displayName',"Unknown")
