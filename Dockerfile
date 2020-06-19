@@ -1,5 +1,8 @@
 FROM python:3.7.7-buster
 
+RUN apt update
+RUN apt install -y xmlsec1
+
 WORKDIR /usr/src/app
 
 COPY requirements.txt ./

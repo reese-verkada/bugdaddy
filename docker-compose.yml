@@ -10,6 +10,8 @@ services:
         environment:
             CERTBOT_EMAIL: reese@verkada.com
             IS_STAGING: 1
+        volumes:
+            - letsencrypt:/etc/letsencrypt
     backend:
         restart: unless-stopped
         depends_on:
@@ -20,3 +22,5 @@ services:
             - 5000:5000/tcp
         volumes:
             - "./db/:/usr/src/app/db/"
+volumes:
+    letsencrypt:
