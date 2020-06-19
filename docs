@@ -1,0 +1,18 @@
+docs
+
+Concierge actions:
+- Track a project [show if no projects tracked]
+- Add weighted variables [show if no weighted variables set]
+- Set a raw p formula [show if no raw p formula set]
+- Set a display p formula [show if no display p formula set]
+- Set variable values for issues [show if any values are missing]
+- Delete or ignore issues that are not found in JIRA, but exist locally [/sync will return a list of issues that may need to be deleted]
+
+delete_ignore flag:
+- 0, default, means fair game to be suggested for deletion
+- 1, means we've suggested deleting this before and user has manually ignored
+
+
+TODO
+- add a manual issue add feature to front-end (posts to /jira_issues -> [{issue_id:12345}]) so that issues from untracked projects can be tracked
+	- will probably have to make sure project_id can be null in jira_issues

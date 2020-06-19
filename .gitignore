@@ -1,0 +1,7 @@
+.DS_Store
+/config*.py
+**/*.sublime-project
+**/*.sublime-workspace
+**/*.db
+__pycache__/
+/env/

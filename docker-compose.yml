@@ -1,0 +1,22 @@
+version: '3'
+services:
+    frontend:
+        restart: unless-stopped
+        build: ./frontend/bugdaddy/
+        image: bugdaddy-frontend
+        ports:
+            - 80:80/tcp
+            - 443:443/tcp
+        environment:
+            CERTBOT_EMAIL: reese@verkada.com
+            IS_STAGING: 1
+    backend:
+        restart: unless-stopped
+        depends_on:
+            - frontend
+        build: .
+        image: bugdaddy-backend
+        ports:
+            - 5000:5000/tcp
+        volumes:
+            - "./db/:/usr/src/app/db/"
