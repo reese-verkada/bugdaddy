@@ -62,7 +62,6 @@ class Jira:
 
 		def account_replace(match):
 			string = match.group()
-			accountid = string.split(':')[1][:-1]
 			accountid = string.split('id:')[1][:-1]
 			try:
 				account = self.get('user',{'accountId':accountid})
@@ -79,7 +78,7 @@ class Jira:
 				comments = data.get('comments',[])
 				comments.reverse()
 				for comment in comments:
-					comment['body'] = re.sub(r'\[~accountid:[a-z0-9]*\]', account_replace, comment['body'])
+					comment['body'] = re.sub(r'\[~accountid:[a-z0-9:\-]*\]', account_replace, comment['body'])
 			finally:
 				return comments
 
