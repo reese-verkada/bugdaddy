@@ -15,4 +15,4 @@ yarn-error.log*
 
 /static/config.json
 /static/jumpcloud.xml
-docker/*.conf
+/docker/*.conf
