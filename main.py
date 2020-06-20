@@ -112,7 +112,8 @@ cors = CORS(app, supports_credentials=True)
 app.config.update({
 	'SECRET_KEY': SAML_SECRET_KEY,
 	'SAML_METADATA_URL': SAML_METADATA_URL,
-	'SAML_DEFAULT_REDIRECT': '/api/redirect?to='+FRONTEND_URL
+	'SAML_DEFAULT_REDIRECT': '/api/redirect?to='+FRONTEND_URL,
+	'SERVER_NAME': BACKEND_URL
 })
 flask_saml.FlaskSAML(app)
 
