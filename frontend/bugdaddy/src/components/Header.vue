@@ -5,7 +5,9 @@
 		<span v-show="isAdmin">
 			<router-link v-bind:class="{'highlighted':$route.name=='Inbox'}" class="button" to="/">Inbox</router-link>
 		</span>
+		<span v-show="isAuth">
 			<router-link v-bind:class="{'highlighted':$route.name=='Table'}" class="button" to="/table">Table</router-link>
+		</span>
 		<span v-show="isAdmin">
 			<router-link v-bind:class="{'highlighted':$route.name=='Projects'}" class="button" to="/projects">Projects</router-link>
 			<router-link v-bind:class="{'highlighted':$route.name=='Weighted Variables'}" class="button" to="/weighted-variables">Weighted Variables</router-link>
