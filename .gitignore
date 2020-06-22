@@ -5,4 +5,3 @@
 **/*.db
 __pycache__/
 /env/
-frontend/bugdaddy/docker/nginx.conf
