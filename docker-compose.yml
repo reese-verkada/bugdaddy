@@ -11,6 +11,7 @@ services:
             - CERTBOT_EMAIL
             - FQDN
             - IS_STAGING
+            - ENVSUBST_VARS=FQDN
         volumes:
             - letsencrypt:/etc/letsencrypt
     backend:
