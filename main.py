@@ -2,6 +2,7 @@
 
 from flask import Flask, jsonify, request, Blueprint, redirect, url_for, session
 from flask_cors import CORS
+from werkzeug.middleware.proxy_fix import ProxyFix
 import flask_saml
 import sqlite3 as sql
 from config import *
@@ -109,6 +110,7 @@ def calculateRawP():
 	calculateDisplayP()
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app)
 cors = CORS(app, supports_credentials=True)
 app.config.update({
 	'SECRET_KEY': SAML_SECRET_KEY,
