@@ -8,8 +8,10 @@ services:
             - 80:80/tcp
             - 443:443/tcp
         environment:
-            CERTBOT_EMAIL: reese@verkada.com
-            IS_STAGING: 1
+            - CERTBOT_EMAIL
+            - FQDN
+            - IS_STAGING
+            ENVSUBST_VARS: FQDN
         volumes:
             - letsencrypt:/etc/letsencrypt
     backend:
@@ -18,8 +20,8 @@ services:
             - frontend
         build: .
         image: bugdaddy-backend
-        ports:
-            - 5000:5000/tcp
+        expose:
+            - 5000
         volumes:
             - "./db/:/usr/src/app/db/"
 volumes:
