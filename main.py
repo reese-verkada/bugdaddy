@@ -9,6 +9,7 @@ from jira import Jira
 from salesforce import Salesforce
 from raw_p_formula import Raw_P_Formula
 import init
+from datetime import timedelta
 
 init.run()
 
@@ -112,12 +113,14 @@ cors = CORS(app, supports_credentials=True)
 app.config.update({
 	'SECRET_KEY': SAML_SECRET_KEY,
 	'SAML_METADATA_URL': SAML_METADATA_URL,
-	'SAML_DEFAULT_REDIRECT': '/api/redirect?to='+FRONTEND_URL
+	'SAML_DEFAULT_REDIRECT': '/api/redirect?to='+FRONTEND_URL,
+	'PERMANENT_SESSION_LIFETIME': timedelta(minutes=SESSION_TIMEOUT)
 })
 flask_saml.FlaskSAML(app)
 
 @app.before_request
 def before_request():
+	session.permanent = True
 	#list of pages that require no auth
 	public = [
 	url_for("login"),

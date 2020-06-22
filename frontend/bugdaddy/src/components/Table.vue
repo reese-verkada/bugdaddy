@@ -46,7 +46,8 @@
 						<td data-label="Total $">{{ issue.total_spend | currency}}</td>
             <td v-bind:data-label="custom_attribute" v-if="issue_attributes[issue.issue_id]" v-for="(options, custom_attribute) in custom_attributes">{{ issue_attributes[issue.issue_id][custom_attribute] }}</td>
             <td v-else></td>
-            <td data-label="Emoji Status"><span class="emoji">{{issue.emoji}}</span></td>
+            <td v-if="issue.emoji == '🔥'" data-label="Emoji Status"><img width=30px src="/static/fire.gif"></td>
+            <td v-else data-label="Emoji Status"><span class="emoji">{{issue.emoji}}</span></td>
 						<td v-if="isAdmin" data-label="Actions">
 							<a target="_blank" v-bind:href="`${$apiURL}/api/jira_redirect/${issue.issue_key}`" title="Open issue in JIRA"><span class="icon-link"></span></a>
               <label v-on:click="openModal(issue.issue_id)"><span title="Edit issue" class="icon-edit"></span></label>
