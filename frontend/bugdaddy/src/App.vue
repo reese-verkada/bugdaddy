@@ -49,13 +49,15 @@ export default {
             this.isAdmin = true
           } else {
             this.isAdmin = false
-            this.$router.push("table")
+            this.$router.push({name:"Table",query:this.$route.query})
           }
         }).catch(err => {
           if (err.response.status === 401) {
             this.isAuth = false
             //window.location.href = `${this.$apiURL}/saml/sso/?next=${this.$apiURL}/api/redirect?to=${window.location.href}`
-            this.$router.push("login")
+            if (this.$route.name != "Login") {
+              this.$router.push({name:"Login", query:{next:window.location.href}})
+            }
           }
         })
     }

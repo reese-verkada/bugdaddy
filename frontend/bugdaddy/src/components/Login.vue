@@ -23,7 +23,7 @@ export default {
   },
   methods: {
     go() {
-      window.location.href = `${this.$apiURL}/saml/sso/`
+      window.location.href = `${this.$apiURL}/saml/sso/?next=${this.$apiURL}/api/redirect?to=${this.$route.query.next}`
     }
   }
 }
