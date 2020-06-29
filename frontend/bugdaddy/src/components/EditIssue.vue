@@ -59,7 +59,7 @@
       <div v-if="picker">
         <span class="button secondary suggestedUser" v-on:mousedown="replaceUser(user,$event)" v-bind:key="user.accountId" v-for="user in suggestedUsers">{{user.displayName}}</span>
       </div>
-      <textarea placeholder="Add a note to this issue..." autofocus maxlength="255" v-model="newCommentComputed"></textarea>
+      <textarea placeholder="Add a note to this issue..." autofocus v-model="newCommentComputed"></textarea>
       <button class="primary" v-if="newCommentComputed" v-on:click="postComment()">Post</button>
     </div>
     <hr>
@@ -322,6 +322,7 @@ export default {
 <style scoped>
   .container {
     text-align: left !important;
+    overflow: scroll;
   }
   .bold {
     font-weight: bold

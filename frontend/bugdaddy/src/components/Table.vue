@@ -1,13 +1,12 @@
 <template>
 	<div class="container">
-		<div v-if="syncing" class="row">
-			<span class="toast">Data is currently syncing...</span>
-		</div>
 		<div class="row">
 			<div class="col-sm">
 				<input size="35" id="filter" v-model="filterString" type="text" placeholder="Filter issues by string or regex...">
 				<span class="tooltip bottom" aria-label="Filters all columns. Match any character or number. Use | for logical OR. Use ^ for matching start of string. Use $ for matching end of string."><span class="icon-help"></span></span>
         <button v-on:click="sync()" class="sync"><span v-bind:class="{'rainbow_text_animated':syncing}">Sync</span></button>
+        <button v-on:click="filterByChecked" class="tertiary" v-if="!isEmpty(keyFilter) && !filteringByKeyIsOn">Filter by checked ({{ Object.keys(keyFilter).length }})</button>
+        <button v-on:click="filterString = ''; filteringByKeyIsOn = false" v-if="filteringByKeyIsOn" class="secondary">Show all issues</button>
         <span v-if="syncErrors.length" class="card error">Sync failed</span>
         <span>{{sortedIssues.length}} {{sortedIssues.length == 1 ? "issue" : "issues"}} displayed</span>
 			</div>
@@ -46,9 +45,16 @@
 						<td data-label="Total $">{{ issue.total_spend | currency}}</td>
             <td v-bind:data-label="custom_attribute" v-if="issue_attributes[issue.issue_id]" v-for="(options, custom_attribute) in custom_attributes">{{ issue_attributes[issue.issue_id][custom_attribute] }}</td>
             <td v-else></td>
-            <td v-if="issue.emoji == '🔥'" data-label="Emoji Status"><img width=30px src="/static/fire.gif"></td>
-            <td v-else data-label="Emoji Status"><span class="emoji">{{issue.emoji}}</span></td>
+
+            <td data-label="Emoji Status">
+              <img v-if="issue.emoji == '🔥'" width=30px src="/static/fire.gif">
+              <span v-else class="emoji">{{issue.emoji}}</span>
+              <img v-if="issue.status == 'Done' || issue.status == 'Closed'" class="gifEmoji" width=30px src="/static/check_mark_button.gif" title="Issue was closed">
+              <img v-if="issue.status == 'Reopened'" class="gifEmoji" width=30px src="/static/man_zombie.gif" title="Issue was reopened">
+            </td>
+
 						<td v-if="isAdmin" data-label="Actions">
+              <input type="checkbox" v-on:change="keyFilterChange(issue.issue_key,$event)" v-model="keyFilter[issue.issue_key]">
 							<a target="_blank" v-bind:href="`${$apiURL}/api/jira_redirect/${issue.issue_key}`" title="Open issue in JIRA"><span class="icon-link"></span></a>
               <label v-on:click="openModal(issue.issue_id)"><span title="Edit issue" class="icon-edit"></span></label>
               <input type="checkbox" v-bind:id="issue.issue_id" class="modal">
@@ -98,11 +104,13 @@ export default {
     	sortCol:'priority',
     	sortDir:'asc',
     	sortDirIcon:'▲',
-    	filterString:'',
+    	filterString:this.$route.query.filterString||'',
       attrFilters:{},
       syncErrors:[],
       currentIssue:null,
-      currentlyOpenFilter:""
+      currentlyOpenFilter:"",
+      keyFilter:{},
+      filteringByKeyIsOn:false
     }
   },
   created() {
@@ -188,6 +196,19 @@ export default {
     },
     isEmpty(thing) {
       return _.isEmpty(thing)
+    },
+    keyFilterChange(key, event) {
+      if (event.srcElement.checked) {
+        this.$set(this.keyFilter, key, true)
+      } else {
+        this.$delete(this.keyFilter, key)
+      }
+    },
+    filterByChecked() {
+      this.filterString = "^"
+      this.filterString += Object.keys(this.keyFilter).join("$|^")
+      this.filterString += "$"
+      this.filteringByKeyIsOn = true
     }
   },
   filters: {
@@ -216,6 +237,7 @@ export default {
       return false
     },
   	sortedIssues() {
+      this.$router.replace({query:{filterString:this.filterString}})
   		return _.orderBy(this.issues,this.sortCol,this.sortDir)
   			.filter(issue => {
           if (this.isAttrFilterOn) { //If we're filtering by at least one attribute
@@ -255,7 +277,7 @@ export default {
 <style scoped>
 	table {
 		max-height: inherit;
-		overflow: visible;
+    overflow: visible;
 	}
 	td, th {
 		font-size: 75%;
@@ -296,6 +318,9 @@ export default {
   }
   .emoji {
     font-size: 1.5rem;
+  }
+  .gifEmoji {
+    vertical-align: sub;
   }
   .rainbow_text_animated {
     background: linear-gradient(to right, #6666ff, #0099ff , #00ff00, #ff3399, #6666ff);
