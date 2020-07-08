@@ -43,6 +43,8 @@
 						<td data-label="Priority">{{ issue.priority }}</td>
 						<td data-label="Cases Attached">{{ issue.cases_attached }}</td>
 						<td data-label="Total $">{{ issue.total_spend | currency}}</td>
+            <td data-label="Updated">{{ issue.updated | fromNowUTC }}</td>
+            <td data-label="Created">{{ issue.created | fromNowUTC }}</td>
             <td v-bind:data-label="custom_attribute" v-if="issue_attributes[issue.issue_id]" v-for="(options, custom_attribute) in custom_attributes">{{ issue_attributes[issue.issue_id][custom_attribute] }}</td>
             <td v-else></td>
 
@@ -51,6 +53,7 @@
               <span v-else class="emoji">{{issue.emoji}}</span>
               <img v-if="issue.status == 'Done' || issue.status == 'Closed'" class="gifEmoji" width=30px src="/static/check_mark_button.gif" title="Issue was closed">
               <img v-if="issue.status == 'Reopened'" class="gifEmoji" width=30px src="/static/man_zombie.gif" title="Issue was reopened">
+              <img v-if="dateDiff(issue.created, 'months', 6)" class="gifEmoji" width=30px src="/static/clock.gif" title="Issue is older than 6 months">
             </td>
 
 						<td v-if="isAdmin" data-label="Actions">
@@ -77,6 +80,7 @@
 <script>
 import axios from 'axios'
 import _ from 'lodash'
+import moment from 'moment'
 import EditIssue from '@/components/EditIssue.vue'
 
 export default {
@@ -99,7 +103,9 @@ export default {
     		//{'id':'display_p','name':'Priority'},
     		//{'id':'raw_p','name':'Raw P'},
     		{'id':'cases_attached','name':'Cases Attached'},
-        {'id':'total_spend','name':'Total $'}
+        {'id':'total_spend','name':'Total $'},
+        {'id':'updated','name':'Updated'},
+        {'id':'created', 'name':'Created'}
     	],
     	sortCol:'priority',
     	sortDir:'asc',
@@ -114,7 +120,6 @@ export default {
     }
   },
   created() {
-  	this.getData()
   	this.sync()
   },
   props: {
@@ -122,6 +127,7 @@ export default {
   },
   methods:{
   	sync() {
+      this.getData()
       this.syncing = true
   		axios.get(`${this.$apiURL}/api/sync`)
   			.then(resp => {
@@ -209,6 +215,9 @@ export default {
       this.filterString += Object.keys(this.keyFilter).join("$|^")
       this.filterString += "$"
       this.filteringByKeyIsOn = true
+    },
+    dateDiff(date, measurement, value) {
+      return moment.utc().diff(moment.utc(date), measurement) >= value
     }
   },
   filters: {
@@ -216,13 +225,19 @@ export default {
   		if (text == null) {
         text = ''
       }
-      return text.length <= 50 ? text : text.substring(0,50) + "..."
+      return text.length <= 60 ? text : text.substring(0,60) + "..."
   	},
     currency(amount) {
       if (typeof amount !== "number") {
         return amount
       }
       return '$' + amount.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+    },
+    dateUTC(date) {
+      return moment.utc(date).format("YYYY-MM-DD")
+    },
+    fromNowUTC(date) {
+      return moment.utc(date).fromNow()
     }
   },
   computed: {
@@ -308,6 +323,9 @@ export default {
     max-width:90%;
     max-height: 80vh !important;
     text-align: left;
+    border: 0;
+    border-radius: 15px;
+    box-shadow: #555 0px 0px 30px;
   }
   span.card {
     display: inline;

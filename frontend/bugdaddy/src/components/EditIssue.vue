@@ -52,7 +52,7 @@
     <div class="comments" v-for="comment in comments">
       <img v-bind:src="comment.updateAuthor.avatarUrls['48x48']">
       <span class="displayName">{{comment.updateAuthor.displayName}}</span>
-      <span class="updated">{{comment.updated | date}}</span>
+      <span class="updated">{{comment.updated | fromNowLocal}}</span>
       <p v-for="paragraph in comment.body.split('\n')">{{ paragraph }}</p>
     </div>
     <div class="comments">
@@ -108,8 +108,12 @@ export default {
       fields: [
         {"name":"project_name","display":"Project"},
         {"name":"created_by","display":"First Linked To Issue"},
+        {"name":"reporter","display":"Reporter"},
+        {"name":"assignee","display":"Assignee"},
         {"name":"cases_attached","display":"Cases Attached"},
-        {"name":"total_spend","display":"Total Spend","filter":"currency"}
+        {"name":"total_spend","display":"Total Spend","filter":"currency"},
+        {"name":"created","display":"Created","filter":"dateUTC"},
+        {"name":"updated","display":"Updated","filter":"dateUTC"}
       ]
     }
   },
@@ -288,6 +292,18 @@ export default {
     },
     displayName(id) {
       return this.accountIds[id]
+    },
+    dateUTC(date) {
+      return moment.utc(date).local().format("MMMM D, YYYY, h:mm A") + " (" + moment.utc(date).fromNow() + ")"
+    },
+    dateLocal(date) {
+      return moment(date).format("YYYY-MM-DD")
+    },
+    fromNowUTC(date) {
+      return moment.utc(date).fromNow()
+    },
+    fromNowLocal(date) {
+      return moment(date).fromNow()
     }
   },
   computed: {
@@ -339,6 +355,7 @@ export default {
     background-color: white;
     padding: 15px;
     margin: 10px 0;
+    overflow-wrap: anywhere;
   }
   .comments img {
     width: 48px;

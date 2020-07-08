@@ -1,6 +1,7 @@
 from urllib3.util.url import parse_url
 import requests
 import re
+from datetime import datetime, timezone
 
 class Jira:
 
@@ -9,6 +10,9 @@ class Jira:
 		self.password = password
 		self.url = parse_url(url)
 		self.url = parse_url('https://'+self.url.host+'/rest/api/2/')
+
+	def parse_time(self,timeString):
+		return datetime.strptime(timeString,'%Y-%m-%dT%H:%M:%S.%f%z').astimezone(timezone.utc).replace(tzinfo=None, microsecond=0)
 
 	def __make_url(self,endpoint):
 		url = parse_url(self.url.scheme+"://"+self.url.host+self.url.path+endpoint).url
@@ -74,7 +78,7 @@ class Jira:
 		if issue_key:
 			comments = []
 			try:
-				data = self.get('issue/'+issue_key+'/comment?maxResults=2&orderBy=-created')
+				data = self.get('issue/'+issue_key+'/comment?maxResults=3&orderBy=-created')
 				comments = data.get('comments',[])
 				comments.reverse()
 				for comment in comments:

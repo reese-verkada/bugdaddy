@@ -11,9 +11,9 @@
 		<span v-show="isAdmin">
 			<router-link v-bind:class="{'highlighted':$route.name=='Projects'}" class="button" to="/projects">Projects</router-link>
 			<router-link v-bind:class="{'highlighted':$route.name=='Weighted Variables'}" class="button" to="/weighted-variables">Weighted Variables</router-link>
-			<router-link v-bind:class="{'highlighted':$route.name=='RawPFormula'}" class="button" to="/raw-p-formula">Priority Formula</router-link>
-			<router-link v-bind:class="{'highlighted':$route.name=='DisplayPFormula'}" class="button" to="/display-p-formula">Display Settings</router-link>
-			<router-link v-bind:class="{'highlighted':$route.name=='CustomAttributes'}" class="button" to="/custom-attributes">Custom Attributes</router-link>
+			<router-link v-bind:class="{'highlighted':$route.name=='Raw P Formula'}" class="button" to="/raw-p-formula">Priority Formula</router-link>
+			<router-link v-bind:class="{'highlighted':$route.name=='Display P Formula'}" class="button" to="/display-p-formula">Display Settings</router-link>
+			<router-link v-bind:class="{'highlighted':$route.name=='Custom Attributes'}" class="button" to="/custom-attributes">Custom Attributes</router-link>
 		</span>
 	</div>
 	<div class="col-sm auth">
