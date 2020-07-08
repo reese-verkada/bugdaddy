@@ -1,4 +1,4 @@
-from __main__ import db
+from main import db
 from sqlalchemy_serializer import SerializerMixin
 
 issue_attributes = db.Table('issue_attributes',

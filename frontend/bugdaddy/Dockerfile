@@ -12,9 +12,9 @@ RUN npm run build
 
 
 
-FROM staticfloat/nginx-certbot
+FROM nginx
 
-COPY ./docker/nginx.conf /etc/nginx/user.conf.d/nginx.conf
+COPY ./docker/nginx.conf /etc/nginx/conf.d/default.conf
 
 WORKDIR /usr/share/nginx/html
 

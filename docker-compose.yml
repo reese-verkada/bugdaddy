@@ -5,15 +5,7 @@ services:
         build: ./frontend/bugdaddy/
         image: bugdaddy-frontend
         ports:
-            - 80:80/tcp
-            - 443:443/tcp
-        environment:
-            - CERTBOT_EMAIL
-            - FQDN
-            - IS_STAGING
-            - ENVSUBST_VARS=FQDN
-        volumes:
-            - letsencrypt:/etc/letsencrypt
+            - 8080:8080/tcp
     backend:
         restart: unless-stopped
         depends_on:
@@ -24,5 +16,3 @@ services:
             - 5000
         volumes:
             - "./db/:/usr/src/app/db/"
-volumes:
-    letsencrypt:
