@@ -128,7 +128,8 @@ app.config.update({
 	'SAML_DEFAULT_REDIRECT': '/api/redirect?to='+FRONTEND_URL,
 	'PERMANENT_SESSION_LIFETIME': timedelta(minutes=SESSION_TIMEOUT),
 	'SQLALCHEMY_DATABASE_URI': DATABASE_URI,
-	'SQLALCHEMY_TRACK_MODIFICATIONS': False
+	'SQLALCHEMY_TRACK_MODIFICATIONS': False,
+	'SQLALCHEMY_ENGINE_OPTIONS': {'pool_size' : 100, 'pool_recycle' : 280}
 })
 flask_saml.FlaskSAML(app)
 db = SQLAlchemy(app)
@@ -692,9 +693,12 @@ def concierge():
 	#this method takes in 2 dicts and returns a list of differences between them; see output schema for schema
 	def __diff(old, new):
 		if old is None:
-			old = {}
+			old = '{}'
 		if new is None:
-			new = {}
+			new = '{}'
+
+		old = json.loads(old)
+		new = json.loads(new)
 
 		oldSet = set(old)
 		newSet = set(new)
@@ -724,7 +728,7 @@ def concierge():
 			'change_id': change.change_id,
 			'issue_key': change.issue.issue_key,
 			'summary': change.issue.summary,
-			'changes': __diff(json.loads(change.old), json.loads(change.new))
+			'changes': __diff(change.old, change.new)
 		}
 		if output['changes']:
 			d.append(output)

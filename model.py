@@ -82,6 +82,6 @@ class Change(db.Model, SerializerMixin):
 	__tablename__ = "changes"
 	change_id = db.Column(db.Integer, primary_key=True, nullable=False)
 	issue_id = db.Column(db.Integer, db.ForeignKey('jira_issues.issue_id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
-	issue = db.relationship('JiraIssue', lazy=False, uselist=False, passive_deletes=True, passive_updates=True)
+	issue = db.relationship('JiraIssue', lazy=False, uselist=False)
 	old = db.Column(db.Text, nullable=True)
 	new = db.Column(db.Text, nullable=True)
