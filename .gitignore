@@ -1,5 +1,5 @@
 .DS_Store
-/config*.py
+config*.py
 **/*.sublime-project
 **/*.sublime-workspace
 **/*.db

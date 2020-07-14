@@ -1,4 +1,4 @@
-from main import db
+from . import db
 from sqlalchemy_serializer import SerializerMixin
 
 issue_attributes = db.Table('issue_attributes',
@@ -6,6 +6,11 @@ issue_attributes = db.Table('issue_attributes',
 	db.Column('attr_name', db.String(255), primary_key=True, nullable=False),
 	db.Column('attr_option', db.String(255), nullable=False),
 	db.ForeignKeyConstraint(["attr_name", "attr_option"],["custom_attributes.attr_name", "custom_attributes.attr_option"], ondelete="CASCADE", onupdate="CASCADE")
+)
+
+board_issues = db.Table('board_issues',
+	db.Column('board_id', db.Integer, db.ForeignKey('boards.board_id', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False),
+	db.Column('issue_id', db.Integer, db.ForeignKey('jira_issues.issue_id', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False)
 )
 
 class JiraProject(db.Model, SerializerMixin):
@@ -76,7 +81,7 @@ class CustomAttribute(db.Model, SerializerMixin):
 class User(db.Model, SerializerMixin):
 	__tablename__ = "users"
 	email = db.Column(db.String(255), primary_key=True, nullable=False)
-	seen_change = db.Column(db.Integer, nullable=False)
+	seen_change = db.Column(db.Integer, nullable=False, default=0)
 
 class Change(db.Model, SerializerMixin):
 	__tablename__ = "changes"
@@ -85,3 +90,10 @@ class Change(db.Model, SerializerMixin):
 	issue = db.relationship('JiraIssue', lazy=False, uselist=False)
 	old = db.Column(db.Text, nullable=True)
 	new = db.Column(db.Text, nullable=True)
+
+class Board(db.Model, SerializerMixin):
+	__tablename__ = "boards"
+	board_id = db.Column(db.Integer, primary_key=True, nullable=False)
+	board_name = db.Column(db.String(255), nullable=False)
+	email = db.Column(db.String(255), db.ForeignKey('users.email', ondelete="SET NULL", onupdate="CASCADE"), nullable=True)
+	issues = db.relationship('JiraIssue', secondary=board_issues, lazy='dynamic', passive_deletes=True, passive_updates=True)

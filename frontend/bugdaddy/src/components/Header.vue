@@ -9,6 +9,7 @@
 			<router-link v-bind:class="{'highlighted':$route.name=='Table'}" class="button" to="/table">Table</router-link>
 		</span>
 		<span v-show="isAdmin">
+			<router-link v-bind:class="{'highlighted':$route.name=='Boards' || $route.name=='Board'}" class="button" to="/boards">Boards</router-link>
 			<router-link v-bind:class="{'highlighted':$route.name=='Projects'}" class="button" to="/projects">Projects</router-link>
 			<router-link v-bind:class="{'highlighted':$route.name=='Weighted Variables'}" class="button" to="/weighted-variables">Weighted Variables</router-link>
 			<router-link v-bind:class="{'highlighted':$route.name=='Raw P Formula'}" class="button" to="/raw-p-formula">Priority Formula</router-link>
@@ -54,6 +55,7 @@ export default {
 <style scoped>
 	.highlighted {
 		background-color: rgb(238, 238, 238);
+		box-shadow: 0px 0px 10px #9999995c inset;
 	}
 
 	.auth {

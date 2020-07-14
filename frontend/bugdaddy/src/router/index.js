@@ -8,6 +8,7 @@ import RawPFormula from '@/components/RawPFormula.vue'
 import DisplayPFormula from '@/components/DisplayPFormula.vue'
 import Login from '@/components/Login.vue'
 import CustomAttributes from '@/components/CustomAttributes.vue'
+import Boards from '@/components/Boards.vue'
 
 Vue.use(Router)
 
@@ -23,6 +24,16 @@ export default new Router({
     	path: '/table',
     	name: 'Table',
     	component: Table
+    },
+    {
+      path: '/boards',
+      name: 'Boards',
+      component: Boards
+    },
+    {
+      path: '/boards/:board_id',
+      name: 'Board',
+      component: Table
     },
     {
       path: '/projects',

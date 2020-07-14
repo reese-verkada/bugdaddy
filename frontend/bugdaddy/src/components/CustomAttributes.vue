@@ -23,6 +23,8 @@
       <div class="card" v-for="(options, attr_name) in attributes">
         <div class="section">
           <h3>{{ attr_name }}</h3>
+        </div>
+        <div class="section">
           <span v-for="(option, index) in options">
             <input v-model="attributes[attr_name][index]" v-on:blur="editAttributeOption(attr_name, index)">
             <span title="Delete this attribute option" class="icon-trash" v-on:click="deleteAttributeOption(attr_name, option)"></span>
@@ -169,5 +171,9 @@ export default {
   .icon-trash {
     cursor: pointer;
     background-image: url('/static/trash.svg');
+  }
+  .card .section {
+    max-height: 500px;
+    overflow: scroll;
   }
 </style>

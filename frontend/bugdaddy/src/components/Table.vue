@@ -1,5 +1,21 @@
 <template>
 	<div class="container">
+    <span v-on:click="errors=[]" v-if="errors.length" class="toast error">
+        <p v-for="error in errors">
+          {{error}}
+        </p>
+    </span>
+    <span v-on:click="success=false" v-if="success" class="toast success">
+      <p>{{ success }}</p>
+    </span>
+    <div class="row" v-if="$route.params.board_id && board.board_name">
+      <span class="icon-bookmark"></span>
+      <div class="col-sm">
+        <h3>{{ board.board_name }}</h3>
+        <h5>by {{ board.email || "Unknown" }}</h5>
+        <hr>
+      </div>
+    </div>
 		<div class="row">
 			<div class="col-sm">
 				<input size="35" id="filter" v-model="filterString" type="text" placeholder="Filter issues by string or regex...">
@@ -7,6 +23,15 @@
         <button v-on:click="sync()" class="sync"><span v-bind:class="{'rainbow_text_animated':syncing}">Sync</span></button>
         <button v-on:click="filterByChecked" class="tertiary" v-if="!isEmpty(keyFilter) && !filteringByKeyIsOn">Filter by checked ({{ Object.keys(keyFilter).length }})</button>
         <button v-on:click="filterString = ''; filteringByKeyIsOn = false" v-if="filteringByKeyIsOn" class="secondary">Show all issues</button>
+        
+        <select v-if="!isEmpty(keyFilter) && !$route.params.board_id" v-model="selectedBoard">
+          <option value=0 disabled>Select board</option>
+          <option v-for="boardOption in boards" v-bind:value="boardOption.board_id">{{boardOption.board_name}}</option>
+        </select>
+        <button class="primary" v-if="!isEmpty(keyFilter) && !$route.params.board_id" v-on:click="addToBoard">Add to board ({{Object.keys(keyFilter).length}})</button>
+
+        <button class="secondary" v-if="!isEmpty(keyFilter) && $route.params.board_id" v-on:click="removeFromBoard">Remove from board ({{Object.keys(keyFilter).length}})</button>
+
         <span v-if="syncErrors.length" class="card error">Sync failed</span>
         <span>{{sortedIssues.length}} {{sortedIssues.length == 1 ? "issue" : "issues"}} displayed</span>
 			</div>
@@ -33,7 +58,7 @@
               </th>
               
               <th>Emoji Status</th>
-							<th v-if="isAdmin">Actions</th>
+							<th v-if="isAdmin"><input type="checkbox" v-on:click="toggleAllChecked" class="filterCheckbox"> Actions</th>
 						</tr>
 					</thead>
 					<tr @keydown.esc="closeModal(issue.issue_id)" tabindex="0" v-on:dblclick="openModal(issue.issue_id)" v-bind:key="issue.issue_id" v-for="issue in sortedIssues" v-bind:style="{'background-color':issue.color}">
@@ -57,7 +82,7 @@
             </td>
 
 						<td v-if="isAdmin" data-label="Actions">
-              <input type="checkbox" v-on:change="keyFilterChange(issue.issue_key,$event)" v-model="keyFilter[issue.issue_key]">
+              <input type="checkbox" v-on:change="keyFilterChange(issue.issue_key,issue.issue_id,$event)" v-model="keyFilter[issue.issue_key]" class="filterCheckbox">
 							<a target="_blank" v-bind:href="`${$apiURL}/api/jira_redirect/${issue.issue_key}`" title="Open issue in JIRA"><span class="icon-link"></span></a>
               <label v-on:click="openModal(issue.issue_id)"><span title="Edit issue" class="icon-edit"></span></label>
               <input type="checkbox" v-bind:id="issue.issue_id" class="modal">
@@ -68,7 +93,7 @@
                   <EditIssue v-on:saved="sync()" class="section" v-bind:issue="issue" v-bind:issue_attributes="issue_attributes[issue.issue_id]" v-bind:custom_attributes="custom_attributes" v-if="currentIssue == issue.issue_id"/>
                 </div>
               </div>
-              <span v-on:click="deleteIssue(issue.issue_id)" title="Untrack this issue" class="icon-trash"></span>
+              <span v-on:click="deleteIssue(issue.issue_id)" v-if="!$route.params.board_id" title="Untrack this issue" class="icon-trash"></span>
 						</td>
 					</tr>
 				</table>
@@ -110,13 +135,18 @@ export default {
     	sortCol:'priority',
     	sortDir:'asc',
     	sortDirIcon:'▲',
-    	filterString:this.$route.query.filterString||'',
+    	filterString:'',
       attrFilters:{},
       syncErrors:[],
       currentIssue:null,
       currentlyOpenFilter:"",
       keyFilter:{},
-      filteringByKeyIsOn:false
+      filteringByKeyIsOn:false,
+      board:{},
+      boards:[],
+      selectedBoard:0,
+      success:false,
+      errors:[]
     }
   },
   created() {
@@ -147,11 +177,21 @@ export default {
         })
   	},
   	getData() {
-  		axios.get(`${this.$apiURL}/api/jira_issues`)
-  			.then(resp => {
-  				this.issues = resp.data
-          
-  			})
+      //if this is a board
+      if (this.$route.params.board_id) {
+    		axios.get(`${this.$apiURL}/api/boards/${this.$route.params.board_id}`)
+    			.then(resp => {
+    				this.issues = resp.data.issues
+            this.board = resp.data.board
+    		})
+      } else {
+        //this isn't a board, it's the full table
+        axios.get(`${this.$apiURL}/api/jira_issues`)
+          .then(resp => {
+            this.issues = resp.data
+            
+        })
+      } 
       axios.get(`${this.$apiURL}/api/custom_attributes`)
         .then(resp => {
           this.custom_attributes = resp.data.attributes
@@ -162,6 +202,10 @@ export default {
       axios.get(`${this.$apiURL}/api/issue_attributes`)
         .then(resp => {
           this.issue_attributes = resp.data
+        })
+      axios.get(`${this.$apiURL}/api/boards`)
+        .then(resp => {
+          this.boards = resp.data.boards
         })
   	},
   	sort(col) {
@@ -203,9 +247,9 @@ export default {
     isEmpty(thing) {
       return _.isEmpty(thing)
     },
-    keyFilterChange(key, event) {
+    keyFilterChange(key, id, event) {
       if (event.srcElement.checked) {
-        this.$set(this.keyFilter, key, true)
+        this.$set(this.keyFilter, key, id)
       } else {
         this.$delete(this.keyFilter, key)
       }
@@ -218,6 +262,57 @@ export default {
     },
     dateDiff(date, measurement, value) {
       return moment.utc().diff(moment.utc(date), measurement) >= value
+    },
+    toggleAllChecked(event) {
+      this.sortedIssues.forEach(issue => {
+        if (event.target.checked) {
+          this.$set(this.keyFilter, issue.issue_key, issue.issue_id)
+        } else {
+          this.keyFilter = {}
+        }        
+      })
+    },
+    addToBoard(event) {
+      if (this.selectedBoard > 0) {
+        this.success = false
+        this.errors = []
+        let issues = []
+        for (const issue in this.keyFilter) {
+          issues.push(this.keyFilter[issue])
+        }
+        axios.post(`${this.$apiURL}/api/boards/${this.selectedBoard}`,{'issues':issues})
+          .then(resp => {
+            this.success = "Added " + issues.length + " issues to board"
+          })
+          .catch(err => {
+            if (err.response && err.response.data) {
+              this.errors = err.response.data.errors
+            } else {
+              this.errors.push(err)
+            }
+          })
+      }
+    },
+    removeFromBoard(event) {
+      this.success = false
+      this.errors = []
+      let issues = []
+      for (const issue in this.keyFilter) {
+        issues.push(this.keyFilter[issue])
+      }
+      axios.delete(`${this.$apiURL}/api/boards/${this.$route.params.board_id}`,{data:{'issues':issues}})
+        .then(resp => {
+          this.success = "Removed " + issues.length + " issues from board"
+          this.issues = resp.data.issues
+          this.keyFilter = {}
+        })
+        .catch(err => {
+          if (err.response && err.response.data) {
+            this.errors = err.response.data.errors
+          } else {
+            this.errors.push(err)
+          }
+        })
     }
   },
   filters: {
@@ -252,7 +347,6 @@ export default {
       return false
     },
   	sortedIssues() {
-      this.$router.replace({query:{filterString:this.filterString}})
   		return _.orderBy(this.issues,this.sortCol,this.sortDir)
   			.filter(issue => {
           if (this.isAttrFilterOn) { //If we're filtering by at least one attribute
@@ -284,12 +378,28 @@ export default {
   				}
   			})
   	}
+  },
+  watch: {
+    $route(to, from) {
+      if (to.params.board_id != from.params.board_id) {
+        this.getData()
+      }
+    }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+  .error {
+    background-color: #d32f2f;
+  }
+  .success {
+    background-color: #bada55;
+  }
+  .filterCheckbox {
+    height: 10px;
+  }
 	table {
 		max-height: inherit;
     overflow: visible;
@@ -318,6 +428,9 @@ export default {
   .icon-filter-on {
     cursor: pointer;
     background-image: url('/static/filter-on.svg');
+  }
+  .icon-bookmark {
+    font-size: 5rem !important;
   }
 	.editIssueModal {
     max-width:90%;

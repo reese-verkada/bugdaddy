@@ -45,7 +45,7 @@ export default {
           } else {
             this.isLoggedIn = false
           }
-          if (resp.data.session && resp.data.session.attributes.role.includes("bug_admin")) {
+          if (resp.data.isAdmin) {
             this.isAdmin = true
           } else {
             this.isAdmin = false

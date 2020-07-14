@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor entityID="http://www.okta.com/exk7r0qrje5hFQlkk2p7" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"><md:IDPSSODescriptor WantAuthnRequestsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><md:KeyDescriptor use="signing"><ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:X509Data><ds:X509Certificate>MIIDnjCCAoagAwIBAgIGAV2wxHdVMA0GCSqGSIb3DQEBCwUAMIGPMQswCQYDVQQGEwJVUzETMBEG
+A1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNjbzENMAsGA1UECgwET2t0YTEU
+MBIGA1UECwwLU1NPUHJvdmlkZXIxEDAOBgNVBAMMB3ZlcmthZGExHDAaBgkqhkiG9w0BCQEWDWlu
+Zm9Ab2t0YS5jb20wHhcNMTcwODA1MDQ1OTUxWhcNMjcwODA1MDUwMDUxWjCBjzELMAkGA1UEBhMC
+VVMxEzARBgNVBAgMCkNhbGlmb3JuaWExFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xDTALBgNVBAoM
+BE9rdGExFDASBgNVBAsMC1NTT1Byb3ZpZGVyMRAwDgYDVQQDDAd2ZXJrYWRhMRwwGgYJKoZIhvcN
+AQkBFg1pbmZvQG9rdGEuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiaVQ8vam
+MyNk6dNid9u3CNLah6CDnV78wdh1Ki52ONfyo59OOUsuoXsFvcUQRg4ARYDyebvhM3doPScGvJ1+
+8zMhb4Wkg7bxKNuk6+J/Ai7GC2qpZTs92/ZwoOKaPdVOJYpj0SUEVhjHgW+HVE/1237BQwF3F+ut
+bP6F6vkN0uhl5YR8cqY86rxP0RNfcqOAqLkx3QSUyFJAIQjeiByS6EaFhX9OaMfzhKhrPf5uDe9G
+mVbWdavj2IfO8OxYg9fvKT8mhFjCpyJNCSOWF+0cXQtnc8E//V8kgLf3Z0Luf9sMJvM1J24BPC21
+FHwbpWPBxALS1eJwRt+sLmYv28cGqwIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQAzPg6aP1VvqHZ9
+LuIIwdjgm+jAqA7JvhNLYxkYEQ3Q7di56EqulmR7zagK9bgneFwOcXcGQAWWjAHKqKCh+t/kR7Av
+lgkOjbCfU4GAZGhfsuSMJxny/FY0kslQE+CFyzCSeXwlSVxEH34+q5X2ztA5hQZLDPfCWAUMieoR
+cjRn473NlyqdHOcoESUteTFQ2qNDLt7i6gxafSGwg8XAuJahSGQzdISUa/vrfh3rwQ0gom/KCGvM
+NdN11eJHMMl/GK5iiB6ul8L/MSXXRGKoGtqIDfM2pPSJx9yRFZg5VH2UeGhQeAwKr1xG58LYS9Am
+77E/WIsCGAQAFbtEsbHdiYIi</ds:X509Certificate></ds:X509Data></ds:KeyInfo></md:KeyDescriptor><md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat><md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://verkada.okta.com/app/verkadainc_bugdaddy_1/exk7r0qrje5hFQlkk2p7/sso/saml"/><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://verkada.okta.com/app/verkadainc_bugdaddy_1/exk7r0qrje5hFQlkk2p7/sso/saml"/></md:IDPSSODescriptor></md:EntityDescriptor>

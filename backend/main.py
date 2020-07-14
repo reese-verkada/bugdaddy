@@ -1,18 +1,13 @@
-#!/usr/bin/env python3
-
-from flask import Flask, jsonify, request, Blueprint, redirect, url_for, session
-from flask_cors import CORS
-from werkzeug.middleware.proxy_fix import ProxyFix
+from flask import jsonify, request, Blueprint, redirect, url_for, session
 import flask_saml
-import sqlite3 as sql
-from config import *
-from jira import Jira
-from salesforce import Salesforce
-from raw_p_formula import Raw_P_Formula
-from datetime import timedelta
-from flask_sqlalchemy import SQLAlchemy
+from .config import *
+from .jira import Jira
+from .salesforce import Salesforce
+from .raw_p_formula import Raw_P_Formula
 from sqlalchemy import exc
 import json
+from . import app
+from .model import *
 
 jira = Jira(JIRA_USERNAME, JIRA_PASSWORD, JIRA_URL)
 sf = Salesforce(SALESFORCE_INSTANCE, SALESFORCE_REFRESH_TOKEN, SALESFORCE_CLIENT_ID, SALESFORCE_CLIENT_SECRET, SALESFORCE_REPORT_ID)
@@ -119,23 +114,6 @@ def calculateRawP():
 			continue
 	calculateDisplayP()
 
-app = Flask(__name__)
-app.wsgi_app = ProxyFix(app.wsgi_app)
-cors = CORS(app, supports_credentials=True)
-app.config.update({
-	'SECRET_KEY': SAML_SECRET_KEY,
-	'SAML_METADATA_URL': SAML_METADATA_URL,
-	'SAML_DEFAULT_REDIRECT': '/api/redirect?to='+FRONTEND_URL,
-	'PERMANENT_SESSION_LIFETIME': timedelta(minutes=SESSION_TIMEOUT),
-	'SQLALCHEMY_DATABASE_URI': DATABASE_URI,
-	'SQLALCHEMY_TRACK_MODIFICATIONS': False,
-	'SQLALCHEMY_ENGINE_OPTIONS': {'pool_size' : 100, 'pool_recycle' : 280}
-})
-flask_saml.FlaskSAML(app)
-db = SQLAlchemy(app)
-from model import *
-db.create_all()
-
 @app.before_request
 def before_request():
 	session.permanent = True
@@ -183,6 +161,7 @@ def check_auth():
 	subject = session.get('saml',{}).get('subject',False)
 	d = {}
 	d['isLoggedIn'] = True if subject else False
+	d['isAdmin'] = True if SAML_ADMIN_ROLE in session.get('saml',{}).get('attributes',{}).get('role',[]) else False
 	d['session'] = session.get('saml')
 	return jsonify(d)
 
@@ -924,7 +903,6 @@ def issue_attributes():
 			print(type(e).__name__,e)
 
 	#GET
-
 	records = JiraIssue.query.join(JiraIssue.attributes)
 	for record in records:
 		if not d.get(record.issue_id):
@@ -933,9 +911,89 @@ def issue_attributes():
 			d[record.issue_id][attribute.attr_name] = attribute.attr_option
 	return jsonify(d)
 
-if __name__ == '__main__':
-	app.run()
+@app.route('/api/boards', methods=['GET','POST'])
+def boards():
+	d = {'errors':[]}
+	if request.method == 'POST':
+		try:
+			body = request.json
+			board_name = body['board_name']
+			email = session.get('saml',{}).get('subject')
+			try:
+				db.session.add(User(email=email))
+				db.session.commit()
+			except:
+				db.session.rollback()
+			db.session.add(Board(board_name=board_name, email=email))
+			db.session.commit()
+		except exc.IntegrityError as e:
+			db.session.rollback()
+			d['errors'].append("Board already exists")
+		except KeyError as e:
+			d['errors'].append("One or more fields missing")
+		except Exception as e:
+			db.session.rollback()
+			d['errors'].append("An unknown error occurred")
+	#GET
+	d['boards'] = serialize(Board.query.all(), rules=('-issues',))
+	if len(d['errors']):
+		return jsonify(d),400
+	return jsonify(d)
 
+@app.route('/api/boards/<int:board_id>', methods=['GET','POST', 'DELETE'])
+def boards_board_id(board_id):
+	d = {'errors':[]}
+	if request.method == 'POST':
+		#Changing name and/or adding issues to board
+		try:
+			body = request.json
+			board_name = body.get('board_name')
+			issues = body.get('issues')
+			board = Board.query.get(board_id)
+			if board:
+				if board_name:
+					board.board_name = board_name
+					db.session.commit()
+				if issues:
+					#get all the JIRA issues we want to add to this board
+					desiredIssues = JiraIssue.query.filter(JiraIssue.issue_id.in_(issues))
+					#except those that exist
+					issueObjects = desiredIssues.except_(board.issues)
+					board.issues.extend(issueObjects.all())
+					db.session.commit()
+			else:
+				d['errors'].append("Board doesn't exist")
+		except exc.IntegrityError as e:
+			db.session.rollback()
+			d['errors'].append("Issue already added to board")
+		except KeyError as e:
+			d['errors'].append("One or more fields missing")
+		except Exception as e:
+			db.session.rollback()
+			d['errors'].append("An unknown error occurred")
+	
+	elif request.method == 'DELETE':
+		#deleting the board
+		try:
+			body = request.json
+			if body and body['issues']:
+				issues = body['issues']
+				db.session.execute(board_issues.delete().where(board_issues.c.board_id == board_id).where(board_issues.c.issue_id.in_(issues)))
+			else:
+				db.session.delete(Board.query.get(board_id))
+			db.session.commit()
+		except Exception as e:
+			raise e
+			db.session.rollback()
+			d['errors'].append("Cannot delete board")
 
-
-
+	#GET
+	q = db.session.query(JiraIssue, SFIssue, DisplayPFormula).join(board_issues, board_issues.c.issue_id == JiraIssue.issue_id).filter(board_issues.c.board_id == board_id).outerjoin(SFIssue, SFIssue.issue_id == JiraIssue.issue_id).outerjoin(DisplayPFormula, DisplayPFormula.display_p == JiraIssue.priority).all()
+	d['issues'] = serialize(q)
+	try:
+		d['board'] = serialize(Board.query.get(board_id), rules=('-issues',))[0]
+	except:
+		d['board'] = {}
+	if len(d['errors']):
+		return jsonify(d),400
+	return jsonify(d)

@@ -10,7 +10,7 @@ services:
         restart: unless-stopped
         depends_on:
             - frontend
-        build: .
+        build: ./backend/
         image: bugdaddy-backend
         expose:
             - 5000
