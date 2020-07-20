@@ -104,6 +104,12 @@ If you are not running the app using one of the containerized methods listed abo
 - xmlsec1 (used for the SAML portion of the backend)
 - npm (used for running and installing the dependencies for the frontend)
 
-
-
-
+### Installation instructions
+- Clone this repo to your local machine
+- Change directory to enter the repo
+- Remove the .example extension from `backend/config.py.example` and ensure that each config variable has a value
+- Remove the .example extension from `frontend/bugdaddy/static/config.json.example` and ensure that each config key has a value
+- Change directory to `/frontend/bugdaddy/` and run `npm install` followed by `npm run dev`
+- Change directory to `/backend/` and run `pip3 install --no-cache-dir -r requirements.txt`
+- Change directory to the repo root and run `python3 run.py`
+- Go to `http://localhost:8080`; the app should be up and running
