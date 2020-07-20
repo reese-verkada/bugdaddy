@@ -5,7 +5,19 @@ BugDaddy is a web app for tracking and displaying product issues.  It pulls data
 2. In production mode by using Docker-Compose with the included `docker-compose.yml` file (`docker-compose up --build -d`)
 3. In production mode by using some other container orchestration system, such as Kubernetes (using Docker as the underlying container engine)
 
-In depth instructions for each of these three methods are provided below.
+Development mode runs the backend using Flask's built-in WSGI web server, and runs the frontend using a built-in node web server.  Production mode runs the backend with a Gunicorn web server in one container, and runs the frontend using an nginx reverse proxy in another container.
+
+In depth instructions for each of these three methods are provided further on.
+
+## Index of this directory
+This section provides a brief overview of the files and folders located within this directory.
+- `backend/`: This is the backend Python package and contains all the code for the backend service
+- `db/`: If a local SQLite database is being used, it will be stored in this folder
+- `frontend/`: This is the project folder for the frontend service
+- `docker-compose.yml`: If using Docker-Compose, this file will be used by the command `docker-compose up --build -d`
+- `Dockerfile`: This is the Dockerfile used to build the bugdaddy-backend Docker image
+- `run.py`: This is the main entrypoint for running the backend (either directly with `python3 run.py` or using Gunicorn)
+- `run.sh`: This bash script is run by the backend container to load secret values from AWS Secrets Manager and start the app with Gunicorn
 
 ## Salesforce and JIRA Setup
 Before installing and running BugDaddy, please follow these steps to get everything you need from JIRA and Salesforce.
