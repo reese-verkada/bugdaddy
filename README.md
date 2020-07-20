@@ -108,8 +108,19 @@ If you are not running the app using one of the containerized methods listed abo
 - Clone this repo to your local machine
 - Change directory to enter the repo
 - Remove the .example extension from `backend/config.py.example` and ensure that each config variable has a value
-- Remove the .example extension from `frontend/bugdaddy/static/config.json.example` and ensure that each config key has a value
+- Remove the .example extension from `frontend/bugdaddy/static/config.json.example` and ensure that each config key has a value; API_URL should be "http://localhost:5000"
 - Change directory to `/frontend/bugdaddy/` and run `npm install` followed by `npm run dev`
 - Change directory to `/backend/` and run `pip3 install --no-cache-dir -r requirements.txt`
 - Change directory to the repo root and run `python3 run.py`
 - Go to `http://localhost:8080`; the app should be up and running
+
+## Production Mode
+Production mode uses Docker containers to make app installation and scaling easier.  All dependencies are installed automatically and each service is built and started automatically.  You will need Docker engine and Docker Compose installed, however.
+
+### Installation instructions
+- Clone this repo to your machine
+- Change directory to enter the repo
+- Remove the .example extension from `backend/config.py.example` and ensure that each config variable has a value
+- Remove the .example extension from `frontend/bugdaddy/static/config.json.example` and ensure that each config key has a value
+- Run `docker-compose up --build -d`; `up` brings the frontend and backend services up; `--build` forces the Docker images to be built; `-d` makes the app run in the background (you can leave this argument out if you want to see logs in the foreground)
+- Go to `http://localhost:8080` or whatever the FQDN is of your host; the app should be up and running
