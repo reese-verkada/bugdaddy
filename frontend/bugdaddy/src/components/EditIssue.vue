@@ -315,7 +315,7 @@ export default {
               this.suggestedUsers = resp.data.users
             })
         }
-          this.newCommentSend = this.newCommentDisplay.replace(/<[a-zA-Z]+[ ]?[a-zA-Z]*>/gm,code => {
+          this.newCommentSend = this.newCommentDisplay.replace(/<.*>/gm,code => {
             return "[~accountid:"+this.accountIds[code]+"]"
           })
         return this.newCommentDisplay

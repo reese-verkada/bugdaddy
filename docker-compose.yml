@@ -10,9 +10,11 @@ services:
         restart: unless-stopped
         depends_on:
             - frontend
-        build: ./backend/
+        build: .
         image: bugdaddy-backend
         expose:
             - 5000
         volumes:
             - "./db/:/usr/src/app/db/"
+        environment:
+            - SECRET_ID=bugs.internal/config

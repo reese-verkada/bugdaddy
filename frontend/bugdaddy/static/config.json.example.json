@@ -1,0 +1,8 @@
+//The frontend requires a config.json file in /static/ to run
+//Please edit this file as desired and remove the .example extension
+{
+	//API_URL is the scheme, FQDN, and port where the backend can be reached
+	"API_URL": "http://localhost:8080",
+	//APP_NAME is the friendly name of the app; can be anything
+	"APP_NAME": "BugDaddy"
+}
