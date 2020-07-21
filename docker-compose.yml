@@ -15,6 +15,6 @@ services:
         expose:
             - 5000
         volumes:
-            - "./db/:/usr/src/app/db/"
+            - "./backend/db/:/usr/src/app/db/"
         environment:
             - SECRET_ID=bugs.internal/config
