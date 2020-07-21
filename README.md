@@ -109,7 +109,18 @@ Here is how logging in with SAML works.  When a user tries to access BugDaddy, t
   - If SAML_VIEWER_ROLE = None is set, the user need not have a role; instead, any user who does not have the SAML_ADMIN_ROLE will automatically be a viewer and doesn't even need to sign in to read data from BugDaddy (this is called public mode)
 
 Please configure your IdP with the following values (keeping in mind that each IdP is different so do your best and copy what you can; I believe in you!!):
-- IdP Entity ID = http://localhost:8080/saml/acs/
+- IdP Entity ID = http://localhost:5000/saml/acs/ (replace http://localhost:5000 with the FQDN of the app if deploying in production)
+- SP Entity ID = http://localhost:5000/saml/metadata/ (replace http://localhost:5000 with the FQDN of the app if deploying in production)
+- ACS URL = http://localhost:5000/saml/acs/ (replace http://localhost:5000 with the FQDN of the app if deploying in production)
+- NameID = email
+- NameID Format = unspecified
+- Signature Algorithm = RSA-SHA256
+- Sign Assertion = true
+- Declare Redirect Endpoint = true
+- User attribute mappings
+  - role -> bugDaddyRole (this is assuming that each user will have an attribute called bugDaddyRole with some value matching the SAML_ADMIN_ROLE or SAML_VIEWER_ROLE in `config.py`
+  
+Once you have the app configured in your IdP, please download the SAML XML metadata.  Then, place this file in `/frontend/bugdaddy/static/` and call it `metadata.xml`.  SAML_METADATA_URL in `config.py` points to this file by default (`SAML_METADATA_URL=os.environ.get('SAML_METADATA_URL',"http://localhost:8080/static/metadata.xml")`).  If you are hosting the metadata elsewhere, please change this config value to reflect the new URL.
 
 ## Development Mode
 If you are not running the app using one of the containerized methods listed above, you will need to ensure these prerequisites are met first.
