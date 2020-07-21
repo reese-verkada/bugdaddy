@@ -12,7 +12,6 @@ In depth instructions for each of these three methods are provided further on.
 ## Index of this directory
 This section provides a brief overview of the files and folders located within this directory.
 - `backend/`: This is the backend Python package and contains all the code for the backend service
-- `db/`: If a local SQLite database is being used, it will be stored in this folder
 - `frontend/`: This is the project folder for the frontend service
 - `docker-compose.yml`: If using Docker-Compose, this file will be used by the command `docker-compose up --build -d`
 - `Dockerfile`: This is the Dockerfile used to build the bugdaddy-backend Docker image
