@@ -1,0 +1,13 @@
+## Index of /backend
+- `db/`: By default (as specified by config variable DATABASE_URI in `config.py`) a local SQLite database is used and stored here; this directory is important because it is mapped to a Docker volume to allow for persistence
+- `__init__.py`: Defines the `backend` Python package; the Flask `app` object and SQLAlchemy `db` object are defined here
+- `config.py.example`: All backend config variables are defined here; please remove the .example extension before running the app
+- `db_conn.py`: Not used
+- `docs`: TODO stuff
+- `init.py`: The database structure defined in SQL; not used
+- `jira.py`: Defines the Jira class which assists in connecting to JIRA and getting/posting data
+- `main.py`: All app routes are defined here
+- `model.py`: All database models (tables) are defined here
+- `raw_p_formula.py`: Defines the Raw_P_Formula class which helps to turn a string formula into an object that can evaluate issue priority
+- `requirements.txt`: Used by pip to install dependencies
+- `salesforce.py`: Defines the Salesforce class which assists in connecting to Salesforce and getting report data
