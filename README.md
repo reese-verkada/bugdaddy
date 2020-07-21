@@ -12,7 +12,6 @@ In depth instructions for each of these three methods are provided further on.
 ## Index of this directory
 This section provides a brief overview of the files and folders located within this directory.
 - `backend/`: This is the backend Python package and contains all the code for the backend service
-- `db/`: If a local SQLite database is being used, it will be stored in this folder
 - `frontend/`: This is the project folder for the frontend service
 - `docker-compose.yml`: If using Docker-Compose, this file will be used by the command `docker-compose up --build -d`
 - `Dockerfile`: This is the Dockerfile used to build the bugdaddy-backend Docker image
@@ -94,6 +93,33 @@ Please note: if you are using AWS Secrets Manager or environment variables inste
 - In the config.py file, ensure there is a line that reads:
 JIRA_PASSWORD = <api_token> (replacing <api_token> with the one received from the previous step)
 Please note: if you are using AWS Secrets Manager or environment variables instead of hard-coded values in the config.py file, this api token should go there instead
+  
+### SAML Metadata
+BugDaddy uses SAML 2.0 for authentication and authorization.  This is great because it means we do not store user passwords anywhere, so BugDaddy will never even be able to leak user passwords.  However, this does mean that, even for development, you will need to have an IdP set up.  I use JumpCloud for development because it's free and allows you to set the app's URL as http (some IdPs require https).  Okta will work as well.
+
+Here is how logging in with SAML works.  When a user tries to access BugDaddy, the frontend and backend will realize that this user is not logged in.  The frontend will direct the user to sign in with SSO.  The configured metadata file is read to determine where to send the user.  Once the user reaches the IdP, they sign in using their corporate credentials stored with the IdP.  The IdP then creates a signed assertion, which is a signed XML document that the user takes back to BugDaddy.  BugDaddy reads this assertion and looks for the following things:
+- A line from the IdP saying that the sign in attempt was a success
+- The user's email address
+- The user's role(s); these must match at least one of the roles listed in the config.py file
+  - Roles are attributes that tell the backend the maximum level of access a given user should have
+  - The default SAML_ADMIN_ROLE is "Bug Daddy - Admin"; if the IdP puts this role in the assertion, the user will be able to read and write all data within BugDaddy
+  - The default SAML_VIEWER_ROLE is "Access - Bug Daddy"; if the IdP puts this role in the assertion, the user will only be able to read certain data within BugDaddy
+  - If a SAML assertion says that a user has multiple roles, SAML_ADMIN_ROLE has a higher priority than SAML_VIEWER_ROLE and, thus, the user will be an admin
+  - If SAML_VIEWER_ROLE = None is set, the user need not have a role; instead, any user who does not have the SAML_ADMIN_ROLE will automatically be a viewer and doesn't even need to sign in to read data from BugDaddy (this is called public mode)
+
+Please configure your IdP with the following values (keeping in mind that each IdP is different so do your best and copy what you can; I believe in you!!):
+- IdP Entity ID = http://localhost:5000/saml/acs/ (replace http://localhost:5000 with the FQDN of the app if deploying in production)
+- SP Entity ID = http://localhost:5000/saml/metadata/ (replace http://localhost:5000 with the FQDN of the app if deploying in production)
+- ACS URL = http://localhost:5000/saml/acs/ (replace http://localhost:5000 with the FQDN of the app if deploying in production)
+- NameID = email
+- NameID Format = unspecified
+- Signature Algorithm = RSA-SHA256
+- Sign Assertion = true
+- Declare Redirect Endpoint = true
+- User attribute mappings
+  - role -> bugDaddyRole (this is assuming that each user will have an attribute called bugDaddyRole with some value matching the SAML_ADMIN_ROLE or SAML_VIEWER_ROLE in `config.py`
+  
+Once you have the app configured in your IdP, please download the SAML XML metadata.  Then, place this file in `/frontend/bugdaddy/static/` and call it `metadata.xml`.  SAML_METADATA_URL in `config.py` points to this file by default (`SAML_METADATA_URL=os.environ.get('SAML_METADATA_URL',"http://localhost:8080/static/metadata.xml")`).  If you are hosting the metadata elsewhere, please change this config value to reflect the new URL.
 
 ## Development Mode
 If you are not running the app using one of the containerized methods listed above, you will need to ensure these prerequisites are met first.
