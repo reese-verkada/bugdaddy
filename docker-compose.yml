@@ -16,5 +16,3 @@ services:
             - 5000
         volumes:
             - "./backend/db/:/usr/src/app/db/"
-        environment:
-            - SECRET_ID=bugs.internal/config
