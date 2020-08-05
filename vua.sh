@@ -105,7 +105,7 @@ cd "$TMPDIR"
 SECURITY_TOKEN=$(cat /mnt/config/security_token)
 
 #Download Upgrade Manifest
-curl -k -s -S -o upgrade.manifest -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$MIRROR/${VERSION}-${MACHINE_EXT}.manifest"
+curl -k -s -o upgrade.manifest -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$MIRROR/${VERSION}-${MACHINE_EXT}.manifest"
 jq -e .machine upgrade.manifest
 ret_val=$?
 if [ "$ret_val" -ne "0" ]; then
@@ -123,7 +123,7 @@ else
     echo "Upgrading bootloader, this is could be potentially fatal"
     echo  "Downloading bootloader..."
     BOOTLOADERIMAGE=$(jq -r .bootloader_version upgrade.manifest)
-    curl -k -s -S -o "$BOOTLOADERIMAGE" -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$(echo "$MIRROR/$BOOTLOADERIMAGE" | sed 's/+/%2B/g')"
+    curl -k -s -o "$BOOTLOADERIMAGE" -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$(echo "$MIRROR/$BOOTLOADERIMAGE" | sed 's/+/%2B/g')"
     #TODO: check checksum before proceeding
 
     if [ -z "$BOOTLOADERIMAGE" ]; then
@@ -148,7 +148,7 @@ if [ "${FS_ONLY}" != "true" ] && [ "${APP_ONLY}" != "true" ];  then
     M4IMAGE=$(jq -r .m4image_version upgrade.manifest)
     
     if [ -n "$KERNEL" ]; then
-        curl -k -s -S -o "$KERNEL" -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$(echo "$MIRROR/$KERNEL" | sed 's/+/%2B/g')"
+        curl -k -s -o "$KERNEL" -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$(echo "$MIRROR/$KERNEL" | sed 's/+/%2B/g')"
         dwnld_chksum=$(sha1sum $KERNEL | awk '{ print $1 }')
         manifest_chksum=$(jq -r .kernel_chksum upgrade.manifest)
 
@@ -160,7 +160,7 @@ if [ "${FS_ONLY}" != "true" ] && [ "${APP_ONLY}" != "true" ];  then
     fi
     
     if [ -n "$DTB" ]; then
-        curl -k -s -S -o "$DTB" -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$(echo "$MIRROR/$DTB" | sed 's/+/%2B/g')"
+        curl -k -s -o "$DTB" -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$(echo "$MIRROR/$DTB" | sed 's/+/%2B/g')"
         dwnld_chksum=$(sha1sum $DTB | awk '{ print $1 }')
         manifest_chksum=$(jq -r .dtb_chksum upgrade.manifest)
 
@@ -172,7 +172,7 @@ if [ "${FS_ONLY}" != "true" ] && [ "${APP_ONLY}" != "true" ];  then
     fi
 
     if [ -n "$M4IMAGE" ]; then
-        curl -k -s -S -o "$M4IMAGE" -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$(echo "$MIRROR/$M4IMAGE" | sed 's/+/%2B/g')"
+        curl -k -s -o "$M4IMAGE" -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$(echo "$MIRROR/$M4IMAGE" | sed 's/+/%2B/g')"
         dwnld_chksum=$(sha1sum $M4IMAGE | awk '{ print $1 }')
         manifest_chksum=$(jq -r .m4image_chksum upgrade.manifest)
 
@@ -249,7 +249,7 @@ if [ "${APP_ONLY}" != "true" ];  then
     if [ -z "$ROOTFS" ]; then
         echo "Not upgrading rootfs"
     else
-        ROOTSIZE=$(curl -k -s -S -I -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$MIRROR/$ROOTFS" | grep -i 'Content-Length' | tail -n 1 | awk '{print $2}')
+        ROOTSIZE=$(curl -k -s -I -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$MIRROR/$ROOTFS" | grep -i 'Content-Length' | tail -n 1 | awk '{print $2}')
         CUR_ROOTSIZE=$( ubinfo -d 2 -n 0 | grep Size | awk '{print $4}' | tr -d \( )
         if [ ${CUR_ROOTSIZE} -lt ${ROOTSIZE} ] ; then
             echo resizing volume to ${ROOTSIZE}
@@ -257,7 +257,7 @@ if [ "${APP_ONLY}" != "true" ];  then
         fi
 
         echo "Streaming new rootfs to $UPGRADE..."
-        curl -k -s -S -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$MIRROR/$ROOTFS" | ubiupdatevol "$UPGRADE" -s "$ROOTSIZE" -
+        curl -k -s -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$MIRROR/$ROOTFS" | ubiupdatevol "$UPGRADE" -s "$ROOTSIZE" -
 
         fw_setenv trialboot 1
         
@@ -289,7 +289,7 @@ else
 
         APP_UPGRADE="/dev/ubi${APP_UBI_PART}_0"
         RUNNING_VERKADA=$(cat /mnt/config/active)
-        APPSIZE=$(curl -k -s -S -I -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$MIRROR/$APP_PARTITION" | grep -i 'Content-Length' | tail -n 1 | awk '{print $2}')
+        APPSIZE=$(curl -k -s -I -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$MIRROR/$APP_PARTITION" | grep -i 'Content-Length' | tail -n 1 | awk '{print $2}')
         CURR_APP_SIZE=$( ubinfo -d ${APP_UBI_PART} -n 0 | grep Size | awk '{print $4}' | tr -d \( )
         if [ ${CURR_APP_SIZE} -lt ${APPSIZE} ] ; then
             echo resizing volume to ${APPSIZE}
@@ -297,7 +297,7 @@ else
         fi
 
         echo "Streaming new app partition to $APP_UPGRADE..."
-        curl -k -s -S -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$MIRROR/$APP_PARTITION" | ubiupdatevol "$APP_UPGRADE" -s "$APPSIZE" -
+        curl -k -s -L -H "X-Verkada-Auth: ${SECURITY_TOKEN}" "$MIRROR/$APP_PARTITION" | ubiupdatevol "$APP_UPGRADE" -s "$APPSIZE" -
 
         unmount_active_app
         touch $TRIAL_FILE
