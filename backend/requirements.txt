@@ -18,7 +18,7 @@ psycopg2-binary==2.8.5
 pycparser==2.20
 PyMySQL==0.9.3
 pyOpenSSL==19.1.0
-pysaml2==4.9.0
+pysaml2==6.5.0
 python-dateutil==2.8.1
 pytz==2020.1
 requests==2.23.0
